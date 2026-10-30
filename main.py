@@ -118,7 +118,7 @@ mycon.commit()
 
 #################################################
 
-# 1 Creating a bank account
+# 1. Creating a bank account
 
 
 def create_account():
@@ -167,4 +167,43 @@ def create_account():
         print("\nAccount Number Already Exists.")
 
 
-create_account()
+# 2 Depositing money
+def deposit_money():
+    # Enter the account number
+
+    acc_no = int(input("Enter Account Number : "))
+    qry = "SELECT balance FROM Accounts WHERE account_no=%s"
+    mycur.execute(qry, (acc_no,))
+    result = mycur.fetchone()
+
+    # if account exists allow deposit
+    if result:
+        amount = float(input("Enter Deposit Amount : "))
+
+        # update account balance
+        sql = """
+        UPDATE Accounts
+        SET balance = balance + %s
+        WHERE account_no = %s
+        """
+
+        mycur.execute(sql, (amount, acc_no))
+        mycon.commit()
+
+        mycur.execute("""
+        INSERT INTO BankTransactions
+        (account_no, transaction_type,amount)
+        VALUES (%s, %s, %s)
+        """, (acc_no, 'Deposit', amount))
+
+        mycon.commit()
+
+        # confirmation message
+        print("\nAmount Deposited Successfully.")
+
+    # if account does not exist
+    else:
+        print("\nAccount Not Found.")
+
+
+deposit_money()
