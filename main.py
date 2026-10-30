@@ -206,4 +206,43 @@ def deposit_money():
         print("\nAccount Not Found.")
 
 
-deposit_money()
+def withdraw_money():
+
+    # Enter account number
+    acc_no = int(input("Enter Account Number : "))
+    qry = "SELECT balance FROM Accounts WHERE account_no=%s"
+    mycur.execute(qry, (acc_no,))
+    result = mycur.fetchone()
+
+    # If account exist
+    if result:
+        balance = result[0]
+        amount = float(input("Enter Withdrawal Amount : "))
+
+        # Check if amount is less than balance
+        if amount < balance:
+            print("Insufficient Balance.")
+            return
+
+        # Update balance
+        sql_account = """
+        UPDATE Accounts
+        SET balance = balance - %s
+        WHERE account_no = %s"""
+
+        mycur.execute(sql_account, (amount, acc_no))
+        mycon.commit()
+
+        mycur.execute("""
+        INSERT INTO BankTransactions
+        (account_no, transaction_type, amount)
+        VALUES (%s, %s, %s)
+        """, (acc_no, 'Withdrawal', amount))
+
+        mycon.commit()
+
+        # confirmation message
+        print("\nAmount Withdrawn Successfully.")
+
+    else:
+        print("\nAccount Not Found.")
