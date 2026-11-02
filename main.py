@@ -220,7 +220,7 @@ def withdraw_money():
         amount = float(input("Enter Withdrawal Amount : "))
 
         # Check if amount is less than balance
-        if amount < balance:
+        if amount > balance:
             print("Insufficient Balance.")
             return
 
@@ -246,3 +246,6 @@ def withdraw_money():
 
     else:
         print("\nAccount Not Found.")
+
+
+withdraw_money()
